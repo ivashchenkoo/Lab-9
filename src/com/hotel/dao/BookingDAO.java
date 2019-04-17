@@ -18,4 +18,6 @@ public interface BookingDAO {
     boolean updateBookingRoomIsFree(Booking booking);
 
     boolean deleteBooking(long id);
+
+    Booking getFirstBooking();
 }

@@ -130,4 +130,18 @@ public class ClientsDAOImpl implements ClientsDAO {
         }
         return false;
     }
+
+    @Override
+    public Clients getFirstClient() {
+        try (Connection connection = ConnectionFactory.getConnection();
+             Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM clients ORDER BY id limit 1")) {
+            if (rs.next()) {
+                return getClientFromRS(rs);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 }

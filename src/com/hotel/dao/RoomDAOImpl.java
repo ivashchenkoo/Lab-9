@@ -121,4 +121,18 @@ public class RoomDAOImpl implements RoomDAO {
         }
         return false;
     }
+
+    @Override
+    public Room getFirstRoom() {
+        try (Connection connection = ConnectionFactory.getConnection();
+             Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM room ORDER BY id limit 1")) {
+            if (rs.next()) {
+                return getRoomFromRS(rs);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 }

@@ -147,4 +147,18 @@ public class BookingDAOImpl implements BookingDAO {
         }
         return false;
     }
+
+    @Override
+    public Booking getFirstBooking() {
+        try (Connection connection = ConnectionFactory.getConnection();
+             Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM booking ORDER BY id limit 1")) {
+            if (rs.next()) {
+                return getBookingFromRS(rs);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 }

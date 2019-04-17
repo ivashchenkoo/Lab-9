@@ -16,4 +16,6 @@ public interface RoomDAO {
     boolean updateRoom(Room room);
 
     boolean deleteRoom(long id);
+
+    Room getFirstRoom();
 }
