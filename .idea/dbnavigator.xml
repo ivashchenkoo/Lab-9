@@ -25,13 +25,13 @@
     <show-object-properties value="true" />
     <loaded-nodes>
       <connection connection-id="d6d33d96-ff8b-4087-babf-4deec03e17a5">
-        <schema name="hotel" object-types="table, view" />
+        <schema name="hotel" object-types="view, table" />
       </connection>
     </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="d6d33d96-ff8b-4087-babf-4deec03e17a5">
-      <console name="hotel@localhost" type="STANDARD" schema="hotel" session="Main">Select * from room</console>
+      <console name="hotel@localhost" type="STANDARD" schema="hotel" session="Main">Select * from clients</console>
       <console name="test@localhost" type="STANDARD" schema="hotel" session="Main" />
     </connection>
   </component>
@@ -90,8 +90,8 @@
           <database value="hotel" />
           <os-authentication value="false" />
           <empty-authentication value="false" />
-          <user value="root" />
-          <deprecated-pwd value="NjI1OQ==" />
+          <user value="ivashchenkoo" />
+          <deprecated-pwd value="cm9ja2llMDcwNzg=" />
         </database>
         <properties>
           <auto-commit value="false" />

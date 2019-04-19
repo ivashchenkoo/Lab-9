@@ -1,6 +1,6 @@
 package com.hotel.domain;
 
-import java.util.Date;
+import java.sql.Date;
 
 /*CREATE TABLE hotel.Booking (ID bigint NOT NULL AUTO_INCREMENT PRIMARY KEY, roomID bigint NOT NULL, clientID bigint NOT NULL, checkInDate date NOT NULL, checkOutDate date,
   CONSTRAINT `room` FOREIGN KEY (`ROOMID`) REFERENCES `hotel`.`Room` (`ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
