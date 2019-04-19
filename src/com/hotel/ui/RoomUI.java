@@ -21,6 +21,8 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 
+import java.io.IOException;
+
 public class RoomUI extends BorderPane {
     private TextField idField = new TextField();
     private TextField numberField = new TextField();
@@ -97,7 +99,12 @@ public class RoomUI extends BorderPane {
         }
         if (ConfirmationBox.show("Are you sure you want to delete this row?\n" +
                 roomTableView.getSelectionModel().getSelectedItems(), "Delete confirmation", "Yes", "No")) {
-            Room room = getFieldsData();
+            Room room = null;
+            try {
+                room = getFieldsData();
+            } catch (IOException e) {
+                return;
+            }
             room = roomDAO.getRoomByID(room.getId());
             if (roomDAO.deleteRoom(room.getId())) {
                 MessageBox.show("Row is deleted successfully!", "Delete info");
@@ -113,7 +120,12 @@ public class RoomUI extends BorderPane {
         }
         if (ConfirmationBox.show("Are you sure you want to update this row?\n" +
                 roomTableView.getSelectionModel().getSelectedItems(), "Update confirmation", "Yes", "No")) {
-            Room room = getFieldsData();
+            Room room = null;
+            try {
+                room = getFieldsData();
+            } catch (IOException e) {
+                return;
+            }
             if (roomDAO.updateRoom(room)) {
                 MessageBox.show("Row is updated successfully!", "Update info");
                 refreshTable();
@@ -128,7 +140,12 @@ public class RoomUI extends BorderPane {
                 return;
             }
 
-            Room room = getFieldsData();
+            Room room = null;
+            try {
+                room = getFieldsData();
+            } catch (IOException e) {
+                return;
+            }
             if (roomDAO.insertRoom(room)) {
                 MessageBox.show("New room created successfully!", "Create info");
             }
@@ -266,12 +283,29 @@ public class RoomUI extends BorderPane {
         descriptionField.setText(room.getDescription());
     }
 
-    private Room getFieldsData() {
+    private Room getFieldsData() throws IOException {
         Room room = new Room();
-        room.setId(Long.parseLong(idField.getText()));
-        room.setNumber(Integer.parseInt(numberField.getText()));
-        room.setSeats(Integer.parseInt(seatsField.getText()));
-        room.setPrice(Integer.parseInt(priceField.getText()));
+        try {
+            room.setNumber(Integer.parseInt(numberField.getText()));
+        } catch (NumberFormatException ex) {
+            MessageBox.show("Room number must be an Integer", "NumberFormatException");
+            numberField.clear();
+            throw new IOException();
+        }
+        try {
+            room.setSeats(Integer.parseInt(seatsField.getText()));
+        } catch (NumberFormatException ex) {
+            MessageBox.show("Seats number must be an Integer", "NumberFormatException");
+            seatsField.clear();
+            throw new IOException();
+        }
+        try {
+            room.setPrice(Integer.parseInt(priceField.getText()));
+        } catch (NumberFormatException ex) {
+            MessageBox.show("Price number must be an Integer", "NumberFormatException");
+            priceField.clear();
+            throw new IOException();
+        }
         room.setDescription(descriptionField.getText());
 
         return room;

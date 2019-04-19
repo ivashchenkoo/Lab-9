@@ -22,6 +22,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
 
@@ -123,7 +124,12 @@ public class ClientsUI extends BorderPane {
         }
         if (ConfirmationBox.show("Are you sure you want to delete this row?\n" +
                 clientsTableView.getSelectionModel().getSelectedItems(), "Delete confirmation", "Yes", "No")) {
-            Clients clients = getFieldsData();
+            Clients clients = null;
+            try {
+                clients = getFieldsData();
+            } catch (IOException e) {
+                return;
+            }
             clients = clientsDAO.getClientByID(clients.getId());
             if (clientsDAO.deleteClient(clients.getId())) {
                 MessageBox.show("Row is deleted successfully!", "Delete info");
@@ -139,7 +145,12 @@ public class ClientsUI extends BorderPane {
         }
         if (ConfirmationBox.show("Are you sure you want to update this row?\n" +
                 clientsTableView.getSelectionModel().getSelectedItems(), "Update confirmation", "Yes", "No")) {
-            Clients clients = getFieldsData();
+            Clients clients = null;
+            try {
+                clients = getFieldsData();
+            } catch (IOException e) {
+                return;
+            }
             if (clientsDAO.updateClient(clients)) {
                 MessageBox.show("Row is updated successfully!", "Update info");
                 refreshTable();
@@ -154,7 +165,12 @@ public class ClientsUI extends BorderPane {
                 return;
             }
 
-            Clients clients = getFieldsData();
+            Clients clients = null;
+            try {
+                clients = getFieldsData();
+            } catch (IOException e) {
+                return;
+            }
             if (clientsDAO.insertClient(clients)) {
                 MessageBox.show("New Client created successfully!", "Create info");
             }
@@ -341,7 +357,7 @@ public class ClientsUI extends BorderPane {
         phoneField.setText(clients.getPhone());
     }
 
-    private Clients getFieldsData() {
+    private Clients getFieldsData() throws IOException {
         Clients clients = new Clients();
         clients.setId(Long.parseLong(idField.getText()));
         clients.setFirstName(firstNameField.getText());
@@ -349,7 +365,13 @@ public class ClientsUI extends BorderPane {
         clients.setLastName(lastNameField.getText());
         clients.setBirthDate(DateUtil.convertStringIntoSqlDate(birthDtField.getText()));
         clients.setSerialOfPassport(serialOfPassportField.getText());
-        clients.setNumOfPassport(Integer.parseInt(numOfPassportField.getText()));
+        try {
+            clients.setNumOfPassport(Integer.parseInt(numOfPassportField.getText()));
+        } catch (NumberFormatException ex) {
+            MessageBox.show("Passport number must be an Integer", "NumberFormatException");
+            numOfPassportField.clear();
+            throw new IOException();
+        }
         clients.setPhone(phoneField.getText());
 
         return clients;
