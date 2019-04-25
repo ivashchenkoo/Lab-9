@@ -10,7 +10,7 @@ public interface ClientsDAO {
 
     List<Clients> getAllClients();
 
-    List<Clients> getClientByName(String firstName, String lasName);
+    List<Clients> getClientByName(String firstName, String lastName);
 
     boolean insertClient(Clients client);
 
