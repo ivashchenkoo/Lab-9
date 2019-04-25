@@ -1,0 +1,70 @@
+.root {
+    -fx-background-image: url("background.jpg");
+    -fx-font-family: "serif";
+    -fx-font-size: 15pt;
+}
+
+.menu-bar {
+    -fx-background-color: linear-gradient(rgba(0, 100, 200), cyan);
+}
+
+.menu-button {
+    -fx-background-color: linear-gradient(rgba(0, 75, 175), cyan);
+}
+
+.menu-button:hover {
+    -fx-background-color: linear-gradient(cyan, rgba(0, 75, 175));
+}
+
+.label {
+    -fx-font-family: "Times New Roman";
+    -fx-font-size: 16pt;
+    -fx-font-weight: bolder;
+    -fx-text-fill: linear-gradient(lightgray, black, lightgray);
+    -fx-effect: innershadow(gaussian, rgba(255,0,255,0.5), 0,0,0,1);
+}
+
+#userLb {
+    -fx-text-fill: green;
+    -fx-font-weight: bold;
+    -fx-font-size: 22pt;
+    -fx-font-family: "Arial";
+}
+
+.button {
+    -fx-background-color: linear-gradient(#00ced1, #00ffff);
+    -fx-font-family: "serif";
+    -fx-font-weight: bolder;
+    -fx-font-size: 20;
+    -fx-text-fill: linear-gradient(blue, indigo);
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(#00ffff, #00ced1);
+    -fx-font-family: "serif";
+    -fx-font-weight: bold;
+    -fx-font-size: 20;
+    -fx-text-fill: linear-gradient(indigo, purple);
+}
+
+.combo-box {
+    -fx-background-color: linear-gradient(#b0e0e6, #87ceeb);
+    -fx-border-color: #48d1cc;
+}
+
+.list-cell {
+    -fx-background-color: linear-gradient(#00ced1, #00ffff);
+}
+
+.column-header {
+    -fx-background-color: linear-gradient(#00ced1, #00ffff);
+}
+
+.text-field {
+    -fx-background-color: linear-gradient(#b0e0e6, #87ceeb);
+    -fx-border-color: #48d1cc;
+}
+
+.scroll-bar {
+    -fx-background-color: linear-gradient(#00ffff, #00ced1);
+}

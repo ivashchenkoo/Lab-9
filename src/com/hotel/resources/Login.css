@@ -1,0 +1,32 @@
+.root {
+     -fx-background-image: url("login-background.png");
+     -fx-font-family: "serif";
+     -fx-font-size: 15pt;
+}
+
+.label {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to right, yellow, orange, yellowgreen, orange, yellow);;
+    -fx-effect: innershadow( three-pass-box , rgba(255,0,255,0.6) , 6, 0.0 , 0 , 2 );
+}
+
+#titleTxt {
+   -fx-font-size: 32px;
+   -fx-font-family: "Arial Black";
+   -fx-fill: YELLOW;
+   -fx-effect: innershadow( three-pass-box , rgba(0,0,0,1) , 6, 0.0 , 0 , 2 );
+}
+
+.button {
+    -fx-text-fill: linear-gradient(to right, yellow, orange, yellow, orange, yellow);
+    -fx-font-family: "Arial Narrow";
+    -fx-font-weight: bold;
+    -fx-background-color: linear-gradient(to right, blue, indigo, blue, indigo, blue);
+    -fx-effect: innershadow( three-pass-box , rgba(0,0,0,1) , 5, 0.0 , 0 , 1 );
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(to right, indigo, blue, indigo, blue, indigo);
+    -fx-text-fill: linear-gradient(to right, orange, yellow, orange, yellow, orange);
+}

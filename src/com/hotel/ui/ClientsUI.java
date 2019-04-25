@@ -1,5 +1,6 @@
 package com.hotel.ui;
 
+import com.hotel.ConnectionFactory;
 import com.hotel.DateUtil;
 import com.hotel.Main;
 import com.hotel.dao.ClientsDAO;
@@ -7,6 +8,7 @@ import com.hotel.dao.ClientsDAOImpl;
 import com.hotel.domain.Clients;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -18,7 +20,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 
@@ -27,6 +29,26 @@ import java.sql.Date;
 import java.time.LocalDate;
 
 public class ClientsUI extends BorderPane {
+    private MenuBar menuBar;
+    private Menu mainMenu = new Menu("_Main");
+    private Menu dataBasesMenu = new Menu("_Data Bases");
+    private Menu tableMenu = new Menu("_Table");
+    private Menu requestMenu = new Menu("_Request...");
+
+    private CustomMenuItem userCustomMenuItem;
+    private MenuItem changeUserMenuItem = new MenuItem("_Change DB User");
+    private MenuItem exitMenuItem = new MenuItem("_Exit");
+    private MenuItem bookingMenuItem = new MenuItem("_Booking");
+    private MenuItem roomsMenuItem = new MenuItem("_Rooms");
+    private MenuItem createMenuItem = new MenuItem("_New...");
+    private MenuItem updateMenuItem = new MenuItem("_Update...");
+    private MenuItem deleteMenuItem = new MenuItem("_Delete...");
+    private MenuItem clearMenuItem = new MenuItem("_Clear");
+    private MenuItem getAllClientsMenuItem = new MenuItem("Get all clients");
+    private MenuItem getFirstClientMenuItem = new MenuItem("Get first client");
+    private MenuItem getClientByIdMenuItem = new MenuItem("Get client by ID");
+    private MenuItem getClientByNameMenuItem = new MenuItem("Get client by name");
+
     private TextField idField = new TextField();
     private TextField firstNameField = new TextField();
     private TextField middleNameField = new TextField();
@@ -42,6 +64,13 @@ public class ClientsUI extends BorderPane {
     private Button createButton = new Button("New...");
     private Button updateButton = new Button("Update...");
     private Button deleteButton = new Button("Delete...");
+    private Button requestButton = new Button("Request...");
+    private Button clearButton = new Button("Clear");
+
+    private Button getAllClientsButton = new Button("Get all clients");
+    private Button getFirstClientButton = new Button("Get first client");
+    private Button getClientByIdButton = new Button("Get client by ID");
+    private Button getClientByNameButton = new Button("Get client by name");
 
     private Button roomButton = new Button("Rooms...");
     private Button bookingButton = new Button("Booking...");
@@ -55,18 +84,20 @@ public class ClientsUI extends BorderPane {
     private TableColumn<Clients, String> serialOfPassportColumn = new TableColumn<>("Passport serial number");
     private TableColumn<Clients, Integer> numOfPassportColumn = new TableColumn<>("Passport number");
     private TableColumn<Clients, String> phoneColumn = new TableColumn<>("Phone number");
+    private ObservableList<Clients> masterData = FXCollections.observableArrayList();
 
     private ClientsDAO clientsDAO = new ClientsDAOImpl();
 
     public ClientsUI() {
-        setPadding(new Insets(10, 10, 10, 10));
-        setTop(new Label());
+        setTop(initMenuBar());
         setCenter(initFields());
         setRight(initButtons());
         setBottom(initTable());
+        loadData();
         setTableData();
         initListeners();
         initDatePickerEvents(birthDatePicker, birthDtField);
+        getStylesheets().add("com/hotel/resources/Simple.css");
     }
 
     private void initDatePickerEvents(DatePicker datePicker, TextField textField) {
@@ -81,40 +112,145 @@ public class ClientsUI extends BorderPane {
         });
     }
 
+    private MenuBar initMenuBar() {
+        menuBar = new MenuBar(mainMenu, dataBasesMenu, tableMenu);
+        dataBasesMenu.getItems().addAll(bookingMenuItem, roomsMenuItem);
+        tableMenu.getItems().addAll(createMenuItem, updateMenuItem, deleteMenuItem, new SeparatorMenuItem(), clearMenuItem, requestMenu);
+        requestMenu.getItems().addAll(getAllClientsMenuItem, getFirstClientMenuItem, getClientByIdMenuItem, getClientByNameMenuItem);
+
+        Label userLabel = new Label("User: " + ConnectionFactory.DB_USER);
+        userLabel.setId("userLb");
+        userCustomMenuItem = new CustomMenuItem(userLabel);
+        mainMenu.getItems().addAll(userCustomMenuItem, changeUserMenuItem, new SeparatorMenuItem(), exitMenuItem);
+
+        changeUserMenuItem.setOnAction(e -> {
+            boolean confirm = ConfirmationBox.show("Are you sure you want to change user?", "Change user confirmation", "Yes", "No");
+            if (confirm) {
+                Stage stage = Main.getStage();
+                stage.close();
+                stage.setWidth(450);
+                stage.setHeight(240);
+                stage.setScene(new Scene(new SignInUI()));
+                stage.setTitle("Sign in to mySql");
+                stage.show();
+            } else return;
+        });
+        exitMenuItem.setOnAction(e -> {
+            if (ConfirmationBox.show("Are you sure you want to quit?", "Exit confirmation", "Yes", "No"))
+                Main.getStage().close();
+        });
+
+        bookingMenuItem.setOnAction(e -> bookingButton_Click());
+        roomsMenuItem.setOnAction(e -> roomsButton_Click());
+
+        createMenuItem.setOnAction(e -> createButton_Click());
+        updateMenuItem.setOnAction(e -> updateButton_Click());
+        deleteMenuItem.setOnAction(e -> deleteButton_Click());
+        clearMenuItem.setOnAction(e -> clearButton_Click());
+
+        getAllClientsMenuItem.setOnAction(e -> requestButtons_Clicks(e));
+        getFirstClientMenuItem.setOnAction(e -> requestButtons_Clicks(e));
+        getClientByIdMenuItem.setOnAction(e -> requestButtons_Clicks(e));
+        getClientByNameMenuItem.setOnAction(e -> requestButtons_Clicks(e));
+
+        return menuBar;
+    }
+
     private Pane initButtons() {
         GridPane pane = new GridPane();
-        pane.setPadding(new Insets(5, 20, 20, 20));
+        pane.setPadding(new Insets(25, 20, 20, 20));
         pane.setVgap(10);
         pane.setHgap(20);
-        pane.setAlignment(Pos.CENTER);
+        pane.setAlignment(Pos.TOP_CENTER);
         pane.add(createButton, 0, 0);
         pane.add(updateButton, 0, 1);
         pane.add(deleteButton, 0, 2);
+        pane.add(requestButton, 0, 3);
         pane.add(bookingButton, 3, 0);
         pane.add(roomButton, 3, 1);
+        pane.add(clearButton, 3, 3);
 
         createButton.setOnAction(e -> createButton_Click());
         updateButton.setOnAction(e -> updateButton_Click());
         deleteButton.setOnAction(e -> deleteButton_Click());
+        requestButton.setOnAction(e -> requestButton_Click());
+        clearButton.setOnAction(e -> clearButton_Click());
 
-        bookingButton.setOnAction(e -> {
-            Stage stage = Main.getStage();
-            stage.close();
-            stage.setScene(new Scene(new BookingUI()));
-            stage.setWidth(1500);
-            stage.setTitle("Hotel DataBase --- Booking");
-            stage.show();
-        });
-        roomButton.setOnAction(e -> {
-            Stage stage = Main.getStage();
-            stage.close();
-            stage.setScene(new Scene(new RoomUI()));
-            stage.setWidth(700);
-            stage.setTitle("Hotel DataBase --- Rooms");
-            stage.show();
-        });
+        bookingButton.setOnAction(e -> bookingButton_Click());
+        roomButton.setOnAction(e -> roomsButton_Click());
 
         return pane;
+    }
+
+    private void clearButton_Click() {
+        loadData();
+        setTableData();
+    }
+
+    private void requestButton_Click() {
+        Stage stage = new Stage();
+        VBox pane = new VBox();
+        pane.setPadding(new Insets(20, 20, 20, 20));
+        pane.setSpacing(20);
+        pane.setAlignment(Pos.CENTER);
+        pane.getChildren().addAll(getAllClientsButton, getFirstClientButton, getClientByIdButton, getClientByNameButton);
+
+        getAllClientsButton.setOnAction(e -> requestButtons_Clicks(e));
+        getFirstClientButton.setOnAction(e -> requestButtons_Clicks(e));
+        getClientByIdButton.setOnAction(e -> requestButtons_Clicks(e));
+        getClientByNameButton.setOnAction(e -> requestButtons_Clicks(e));
+
+        Scene scene = new Scene(pane);
+        scene.getStylesheets().add("com/hotel/resources/Boxes.css");
+
+        stage.setScene(scene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("Requests");
+        stage.getIcons().add(Main.getIcon());
+        stage.setWidth(300);
+        stage.show();
+    }
+
+    private void requestButtons_Clicks(ActionEvent e) {
+        if (e.getSource().equals(getAllClientsButton) || e.getSource().equals(getAllClientsMenuItem)) {
+            loadData();
+            setTableData();
+        } else if (e.getSource().equals(getFirstClientButton) || e.getSource().equals(getFirstClientMenuItem)) {
+            masterData.clear();
+            masterData.addAll(clientsDAO.getFirstClient());
+            setTableData();
+        } else if (e.getSource().equals(getClientByIdButton) || e.getSource().equals(getClientByIdMenuItem)) {
+            long id;
+            try {
+                String idStr = InputBox.show("Enter client ID:", "Input data");
+                if (idStr.equals("")) return;
+                id = Long.parseLong(idStr);
+                masterData.clear();
+                masterData.addAll(clientsDAO.getClientByID(id));
+                setTableData();
+            } catch (NumberFormatException ex) {
+                MessageBox.show("ID number must be a Long value", "NumberFormatException");
+                requestButtons_Clicks(e);
+            }
+        } else if (e.getSource().equals(getClientByNameButton) || e.getSource().equals(getClientByNameMenuItem)) {
+            String firstName = InputBox.show("Enter client`s first name:", "Input data");
+            String lastName = InputBox.show("Enter client`s last name:", "Input data");
+            masterData.clear();
+            masterData.addAll(clientsDAO.getClientByName(firstName, lastName));
+            setTableData();
+        }
+    }
+
+    private void roomsButton_Click() {
+        Stage stage = Main.getStage();
+        stage.setScene(new Scene(new RoomUI()));
+        stage.setTitle("Hotel DataBase --- Rooms");
+    }
+
+    private void bookingButton_Click() {
+        Stage stage = Main.getStage();
+        stage.setScene(new Scene(new BookingUI()));
+        stage.setTitle("Hotel DataBase --- Booking");
     }
 
     private void deleteButton_Click() {
@@ -176,6 +312,7 @@ public class ClientsUI extends BorderPane {
             }
 
             createButton.setText("New...");
+            createMenuItem.setText("_New...");
             refreshTable();
         } else if (createButton.getText().equals("New...")) {
             Clients clients = new Clients();
@@ -189,37 +326,31 @@ public class ClientsUI extends BorderPane {
 
             setFieldsData(clients);
             createButton.setText("Save");
+            createMenuItem.setText("_Save");
         }
     }
 
     private Pane initFields() {
         GridPane pane = new GridPane();
-        pane.setAlignment(Pos.CENTER);
-        pane.setPadding(new Insets(10, 10, 10, 10));
+        pane.setAlignment(Pos.TOP_CENTER);
+        pane.setPadding(new Insets(25, 10, 10, 10));
         pane.setHgap(5);
         pane.setVgap(10);
 
         Label firstNameLabel = new Label("First name");
         firstNameLabel.setTextFill(Color.BLUE);
-        firstNameLabel.setFont(Font.font("Times New Roman", 20));
         Label middleNameLabel = new Label("Middle name");
         middleNameLabel.setTextFill(Color.BLUE);
-        middleNameLabel.setFont(Font.font("Times New Roman", 20));
         Label lastNameLabel = new Label("Last name");
         lastNameLabel.setTextFill(Color.BLUE);
-        lastNameLabel.setFont(Font.font("Times New Roman", 20));
         Label birthDtLabel = new Label("Birth date");
         birthDtLabel.setTextFill(Color.BLUE);
-        birthDtLabel.setFont(Font.font("Times New Roman", 20));
         Label serialOfPassportLabel = new Label("Passport serial number");
         serialOfPassportLabel.setTextFill(Color.BLUE);
-        serialOfPassportLabel.setFont(Font.font("Times New Roman", 20));
         Label numOfPassportLabel = new Label("Passport number");
         numOfPassportLabel.setTextFill(Color.BLUE);
-        numOfPassportLabel.setFont(Font.font("Times New Roman", 20));
         Label phoneLabel = new Label("Phone number");
         phoneLabel.setTextFill(Color.BLUE);
-        phoneLabel.setFont(Font.font("Times New Roman", 20));
 
         pane.add(firstNameLabel, 0, 0);
         pane.add(firstNameField, 1, 0);
@@ -315,18 +446,19 @@ public class ClientsUI extends BorderPane {
     }
 
     private ObservableList<Clients> loadData() {
-        ObservableList<Clients> masterData = FXCollections.observableArrayList();
+        masterData.clear();
         masterData.addAll(clientsDAO.getAllClients());
 
         return masterData;
     }
 
     private void setTableData() {
-        clientsTableView.setItems(loadData());
+        clientsTableView.setItems(masterData);
     }
 
     private void refreshTable() {
         TableView.TableViewFocusModel<Clients> roomModelFocused = clientsTableView.getFocusModel();
+        loadData();
         setTableData();
         clientsTableView.setFocusModel(roomModelFocused);
     }
