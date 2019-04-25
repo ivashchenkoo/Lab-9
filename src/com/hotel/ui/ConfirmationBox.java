@@ -1,5 +1,6 @@
 package com.hotel.ui;
 
+import com.hotel.Main;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -7,7 +8,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -28,26 +28,29 @@ public class ConfirmationBox {
 
         Button btnYes = new Button();
         btnYes.setText(textYes);
-        btnYes.setTextFill(Color.GREEN);
         btnYes.setOnAction(e -> btnYes_Clicked());
+        btnYes.setId("btnYes");
 
         Button btnNo = new Button();
         btnNo.setText(textNo);
-        btnNo.setTextFill(Color.RED);
         btnNo.setOnAction(e -> btnNo_Clicked());
+        btnNo.setId("btnNo");
 
         HBox paneBtn = new HBox(20);
         paneBtn.getChildren().addAll(btnYes, btnNo);
         paneBtn.setAlignment(Pos.CENTER);
 
         VBox pane = new VBox(20);
-        pane.setPadding(new Insets(15,20,15,20));
+        pane.setPadding(new Insets(15, 20, 15, 20));
         pane.getChildren().addAll(lbl, paneBtn);
         pane.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(pane);
+        scene.getStylesheets().add("com/hotel/resources/Boxes.css");
         stage.setScene(scene);
+        stage.getIcons().add(Main.getIcon());
         stage.showAndWait();
+
         return btnYesClicked;
     }
 

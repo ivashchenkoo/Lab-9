@@ -1,0 +1,45 @@
+.root {
+     -fx-background-image: url("boxes-background.jpg");
+     -fx-font-family: "serif";
+     -fx-font-size: 18pt;
+}
+
+.label {
+    -fx-font-weight: bolder;
+    -fx-text-fill: linear-gradient(green, lime);
+    -fx-effect: dropshadow(three-pass-box , rgba(0,0,0,0.4) , 6, 0.0 , 0 , 2 );
+}
+
+#btnYes {
+    -fx-background-color: linear-gradient(#7fff00, #006400);
+    -fx-text-fill: linear-gradient(#ff7f50, #ff69b4);
+}
+
+#btnNo {
+    -fx-background-color: linear-gradient(#b22222, #ff1493);
+    -fx-text-fill: linear-gradient(green, lime);
+}
+
+#btnYes:hover {
+    -fx-background-color: linear-gradient(#006400, #7fff00);
+    -fx-text-fill: linear-gradient(#ff69b4, #ff7f50);
+}
+
+#btnNo:hover {
+    -fx-background-color: linear-gradient(#ff1493, #b22222);
+    -fx-text-fill: linear-gradient(lime, green);
+}
+
+.button {
+    -fx-background-color: linear-gradient(#7fff00, #006400);
+    -fx-text-fill: linear-gradient(#ff69b4, #ffb6c1);
+    -fx-font-family: "Arial Narrow";
+    -fx-font-size: 16pt;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box , rgba(0,0,0,0.4) , 6, 0.0 , 0 , 2 );
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(#006400, #7fff00);
+    -fx-text-fill: linear-gradient(#ffb6c1, #ff69b4);
+}
