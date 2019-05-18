@@ -27,6 +27,7 @@ public class Main extends Application {
             if (ConfirmationBox.show("Are you sure you want to quit?", "Exit confirmation", "Yes", "No"))
                 stage.close();
         });
+
         stage.show();
     }
 

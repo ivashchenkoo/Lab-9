@@ -20,4 +20,8 @@ public interface BookingDAO {
     boolean deleteBooking(long id);
 
     Booking getFirstBooking();
+
+    List<Booking> getBookingByRoomNumber(int number);
+
+    List<Booking> getBookingByClientName(String firstName, String lastName);
 }

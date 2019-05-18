@@ -25,13 +25,51 @@
     <show-object-properties value="true" />
     <loaded-nodes>
       <connection connection-id="d6d33d96-ff8b-4087-babf-4deec03e17a5">
-        <schema name="hotel" object-types="view, table" />
+        <schema name="hotel" object-types="table, view" />
       </connection>
     </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="d6d33d96-ff8b-4087-babf-4deec03e17a5">
-      <console name="hotel@localhost" type="STANDARD" schema="hotel" session="Main">Select * from clients</console>
+      <console name="hotel@localhost" type="STANDARD" schema="dbntu" session="Main">CREATE DATABASE hotel;
+ USE hotel;
+
+CREATE TABLE hotel.Room (
+   ID bigint NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   number int (30),
+   seats int (30),
+   price int (30),
+   description varchar(255) NOT NULL
+);
+
+CREATE TABLE hotel.Clients (
+   ID bigint NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   firstName varchar (255) NOT NULL,
+   middleName varchar (255),
+   lastName varchar (255) NOT NULL,
+   birthDt date,
+   serialOfPassport varchar (30),
+   numOfPassport int (30),
+   phone varchar (255) NOT NULL
+);
+
+CREATE TABLE hotel.Booking (
+   ID bigint NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   roomID bigint NOT NULL,
+   clientID bigint NOT NULL,
+   checkInDate date NOT NULL,
+   checkOutDate date,
+   CONSTRAINT `room`
+                        FOREIGN KEY (`ROOMID`)
+                        REFERENCES `hotel`.`Room` (`ID`)
+                        ON DELETE NO ACTION
+                        ON UPDATE NO ACTION,
+   CONSTRAINT `client`
+                        FOREIGN KEY (`CLIENTID`)
+                        REFERENCES `hotel`.`Clients` (`ID`)
+                        ON DELETE NO ACTION
+                        ON UPDATE NO ACTION                    
+);</console>
       <console name="test@localhost" type="STANDARD" schema="hotel" session="Main" />
     </connection>
   </component>
@@ -76,7 +114,7 @@
     <connections>
       <connection id="d6d33d96-ff8b-4087-babf-4deec03e17a5" active="true">
         <database>
-          <name value="hotel@localhost" />
+          <name value="dbntu@localhost" />
           <description value="" />
           <database-type value="MYSQL" />
           <config-type value="BASIC" />
@@ -87,7 +125,7 @@
           <url-type value="DATABASE" />
           <host value="localhost" />
           <port value="3306" />
-          <database value="hotel" />
+          <database value="dbntu" />
           <os-authentication value="false" />
           <empty-authentication value="false" />
           <user value="ivashchenkoo" />

@@ -60,6 +60,13 @@ public class SignInUI extends BorderPane {
                 stage.setWidth(1000);
                 stage.setHeight(870);
                 stage.setScene(new Scene(new BookingUI(), 900, 500));
+
+                /*File f = new File("com\\hotel\\resources\\background.mp3");
+                Media media = new Media(f.toURI().toString());
+                MediaPlayer mplayer = new MediaPlayer(media);
+                mplayer.setAutoPlay(true);
+                mplayer.setVolume(0.3);*/
+
                 stage.show();
             } catch (SQLException ex) {
                 MessageBox.show("Incorrect login or password!", "SQLException");

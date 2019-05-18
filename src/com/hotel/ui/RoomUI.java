@@ -1,7 +1,5 @@
 package com.hotel.ui;
 
-import com.hotel.ConnectionFactory;
-import com.hotel.Main;
 import com.hotel.dao.RoomDAO;
 import com.hotel.dao.RoomDAOImpl;
 import com.hotel.domain.Room;
@@ -10,61 +8,34 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 
 import java.io.IOException;
 
-public class RoomUI extends BorderPane {
-    private MenuBar menuBar;
-    private Menu mainMenu = new Menu("_Main");
-    private Menu dataBasesMenu = new Menu("_Data Bases");
-    private Menu tableMenu = new Menu("_Table");
-    private Menu requestMenu = new Menu("_Request...");
+public class RoomUI extends AbstractMainUI {
 
-    private CustomMenuItem userCustomMenuItem;
-    private MenuItem changeUserMenuItem = new MenuItem("_Change DB User");
-    private MenuItem exitMenuItem = new MenuItem("_Exit");
-    private MenuItem bookingMenuItem = new MenuItem("_Booking");
-    private MenuItem clientsMenuItem = new MenuItem("_Clients");
-    private MenuItem createMenuItem = new MenuItem("_New...");
-    private MenuItem updateMenuItem = new MenuItem("_Update...");
-    private MenuItem deleteMenuItem = new MenuItem("_Delete...");
-    private MenuItem clearMenuItem = new MenuItem("_Clear");
     private MenuItem getAllRoomsMenuItem = new MenuItem("Get all rooms");
     private MenuItem getFirstRoomMenuItem = new MenuItem("Get first room");
     private MenuItem getRoomByIdMenuItem = new MenuItem("Get room by ID");
     private MenuItem getRoomBySeatsAndMaxPriceMenuItem = new MenuItem("Get room by seats and max price");
-
-    private TextField idField = new TextField();
-    private TextField numberField = new TextField();
-    private TextField seatsField = new TextField();
-    private TextField priceField = new TextField();
-    private TextField descriptionField = new TextField();
-
-    private Button createButton = new Button("New...");
-    private Button updateButton = new Button("Update...");
-    private Button deleteButton = new Button("Delete...");
-    private Button requestButton = new Button("Request...");
-    private Button clearButton = new Button("Clear");
 
     private Button getAllRoomsButton = new Button("Get all rooms");
     private Button getFirstRoomButton = new Button("Get first room");
     private Button getRoomByIdButton = new Button("Get room by ID");
     private Button getRoomBySeatsAndMaxPriceButton = new Button("Get room by seats and max price");
 
-    private Button clientsButton = new Button("Clients...");
-    private Button bookingButton = new Button("Booking...");
+    private TextField idField = new TextField();
+    private TextField numberField = new TextField();
+    private TextField seatsField = new TextField();
+    private TextField priceField = new TextField();
+    private TextField descriptionField = new TextField();
 
     private TableView<Room> roomTableView = new TableView<>();
     private TableColumn<Room, Long> idColumn = new TableColumn<>("ID");
@@ -74,13 +45,12 @@ public class RoomUI extends BorderPane {
     private TableColumn<Room, String> descriptionColumn = new TableColumn<>("Description");
     private ObservableList<Room> masterData = FXCollections.observableArrayList();
 
-
     private RoomDAO roomDAO = new RoomDAOImpl();
 
     public RoomUI() {
-        setTop(initMenuBar());
+        setTop(initMenuBar(getAllRoomsMenuItem, getFirstRoomMenuItem, getRoomByIdMenuItem, getRoomBySeatsAndMaxPriceMenuItem));
         setCenter(initFields());
-        setRight(initButtons());
+        setRight(initButtons(getAllRoomsButton, getFirstRoomButton, getRoomByIdButton, getRoomBySeatsAndMaxPriceButton));
         setBottom(initTable());
         loadData();
         setTableData();
@@ -88,106 +58,7 @@ public class RoomUI extends BorderPane {
         getStylesheets().add("com/hotel/resources/Simple.css");
     }
 
-    private MenuBar initMenuBar() {
-        menuBar = new MenuBar(mainMenu, dataBasesMenu, tableMenu);
-        dataBasesMenu.getItems().addAll(bookingMenuItem, clientsMenuItem);
-        tableMenu.getItems().addAll(createMenuItem, updateMenuItem, deleteMenuItem, new SeparatorMenuItem(), clearMenuItem, requestMenu);
-        requestMenu.getItems().addAll(getAllRoomsMenuItem, getFirstRoomMenuItem, getRoomByIdMenuItem, getRoomBySeatsAndMaxPriceMenuItem);
-
-        Label userLabel = new Label("User: " + ConnectionFactory.DB_USER);
-        userLabel.setId("userLb");
-        userCustomMenuItem = new CustomMenuItem(userLabel);
-        mainMenu.getItems().addAll(userCustomMenuItem, changeUserMenuItem, new SeparatorMenuItem(), exitMenuItem);
-
-        changeUserMenuItem.setOnAction(e -> {
-            boolean confirm = ConfirmationBox.show("Are you sure you want to change user?", "Change user confirmation", "Yes", "No");
-            if (confirm) {
-                Stage stage = Main.getStage();
-                stage.close();
-                stage.setWidth(450);
-                stage.setHeight(240);
-                stage.setScene(new Scene(new SignInUI()));
-                stage.setTitle("Sign in to mySql");
-                stage.show();
-            } else return;
-        });
-        exitMenuItem.setOnAction(e -> {
-            if (ConfirmationBox.show("Are you sure you want to quit?", "Exit confirmation", "Yes", "No"))
-                Main.getStage().close();
-        });
-
-        bookingMenuItem.setOnAction(e -> bookingButton_Click());
-        clientsMenuItem.setOnAction(e -> clientsButton_Click());
-
-        createMenuItem.setOnAction(e -> createButton_Click());
-        updateMenuItem.setOnAction(e -> updateButton_Click());
-        deleteMenuItem.setOnAction(e -> deleteButton_Click());
-        clearMenuItem.setOnAction(e -> clearButton_Click());
-
-        getAllRoomsMenuItem.setOnAction(e -> requestButtons_Clicks(e));
-        getFirstRoomMenuItem.setOnAction(e -> requestButtons_Clicks(e));
-        getRoomByIdMenuItem.setOnAction(e -> requestButtons_Clicks(e));
-        getRoomBySeatsAndMaxPriceMenuItem.setOnAction(e -> requestButtons_Clicks(e));
-
-        return menuBar;
-    }
-
-    private Pane initButtons() {
-        GridPane pane = new GridPane();
-        pane.setPadding(new Insets(25, 20, 20, 20));
-        pane.setVgap(10);
-        pane.setHgap(20);
-        pane.setAlignment(Pos.TOP_CENTER);
-        pane.add(createButton, 0, 0);
-        pane.add(updateButton, 0, 1);
-        pane.add(deleteButton, 0, 2);
-        pane.add(requestButton, 0, 3);
-        pane.add(bookingButton, 3, 0);
-        pane.add(clientsButton, 3, 1);
-        pane.add(clearButton, 3, 3);
-
-        createButton.setOnAction(e -> createButton_Click());
-        updateButton.setOnAction(e -> updateButton_Click());
-        deleteButton.setOnAction(e -> deleteButton_Click());
-        requestButton.setOnAction(e -> requestButton_Click());
-        clearButton.setOnAction(e -> clearButton_Click());
-
-        bookingButton.setOnAction(e -> bookingButton_Click());
-        clientsButton.setOnAction(e -> clientsButton_Click());
-
-        return pane;
-    }
-
-    private void clearButton_Click() {
-        loadData();
-        setTableData();
-    }
-
-    private void requestButton_Click() {
-        Stage stage = new Stage();
-        VBox pane = new VBox();
-        pane.setPadding(new Insets(20, 20, 20, 20));
-        pane.setSpacing(20);
-        pane.setAlignment(Pos.CENTER);
-        pane.getChildren().addAll(getAllRoomsButton, getFirstRoomButton, getRoomByIdButton, getRoomBySeatsAndMaxPriceButton);
-
-        getAllRoomsButton.setOnAction(e -> requestButtons_Clicks(e));
-        getFirstRoomButton.setOnAction(e -> requestButtons_Clicks(e));
-        getRoomByIdButton.setOnAction(e -> requestButtons_Clicks(e));
-        getRoomBySeatsAndMaxPriceButton.setOnAction(e -> requestButtons_Clicks(e));
-
-        Scene scene = new Scene(pane);
-        scene.getStylesheets().add("com/hotel/resources/Boxes.css");
-
-        stage.setScene(scene);
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle("Requests");
-        stage.getIcons().add(Main.getIcon());
-        stage.setWidth(300);
-        stage.show();
-    }
-
-    private void requestButtons_Clicks(ActionEvent e) {
+    protected void requestButtons_Clicks(ActionEvent e) {
         if (e.getSource().equals(getAllRoomsButton) || e.getSource().equals(getAllRoomsMenuItem)) {
             loadData();
             setTableData();
@@ -227,19 +98,7 @@ public class RoomUI extends BorderPane {
         }
     }
 
-    private void clientsButton_Click() {
-        Stage stage = Main.getStage();
-        stage.setScene(new Scene(new ClientsUI()));
-        stage.setTitle("Hotel DataBase --- Clients");
-    }
-
-    private void bookingButton_Click() {
-        Stage stage = Main.getStage();
-        stage.setScene(new Scene(new BookingUI()));
-        stage.setTitle("Hotel DataBase --- Booking");
-    }
-
-    private void deleteButton_Click() {
+    protected void deleteButton_Click() {
         if (numberField.getText().equals("") || seatsField.getText().equals("") || priceField.getText().equals("") ||
                 numberField.getText().equals("0") || seatsField.getText().equals("0") || priceField.getText().equals("0")) {
             MessageBox.show("Choose a row to delete!", "Delete info");
@@ -261,7 +120,7 @@ public class RoomUI extends BorderPane {
         }
     }
 
-    private void updateButton_Click() {
+    protected void updateButton_Click() {
         if (isEmptyFieldData()) {
             MessageBox.show("Choose a row to update!", "Update info");
             return;
@@ -281,7 +140,7 @@ public class RoomUI extends BorderPane {
         }
     }
 
-    private void createButton_Click() {
+    protected void createButton_Click() {
         if (createButton.getText().equals("Save")) {
             if (isEmptyFieldData()) {
                 MessageBox.show("Cannot create an empty record!", "Create info");
@@ -314,7 +173,7 @@ public class RoomUI extends BorderPane {
         }
     }
 
-    private Pane initFields() {
+    protected Pane initFields() {
         GridPane pane = new GridPane();
         pane.setAlignment(Pos.TOP_CENTER);
         pane.setPadding(new Insets(25, 10, 10, 10));
@@ -342,7 +201,7 @@ public class RoomUI extends BorderPane {
         return pane;
     }
 
-    private Pane initTable() {
+    protected Pane initTable() {
         VBox pane = new VBox();
         pane.setPadding(new Insets(10, 10, 10, 10));
 
@@ -366,6 +225,11 @@ public class RoomUI extends BorderPane {
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         descriptionColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         descriptionColumn.setOnEditCommit(e -> descriptionColumn_OnEditCommit(e));
+
+        descriptionColumn.setPrefWidth(600);
+        numberColumn.setPrefWidth(150);
+        seatsColumn.setPrefWidth(150);
+        priceColumn.setPrefWidth(150);
 
         roomTableView.setEditable(true);
         roomTableView.getColumns().addAll(idColumn, numberColumn, seatsColumn, priceColumn, descriptionColumn);
@@ -398,14 +262,12 @@ public class RoomUI extends BorderPane {
         roomDAO.updateRoom(room);
     }
 
-    private ObservableList<Room> loadData() {
+    protected void loadData() {
         masterData.clear();
         masterData.addAll(roomDAO.getAllRooms());
-
-        return masterData;
     }
 
-    private void setTableData() {
+    protected void setTableData() {
         roomTableView.setItems(masterData);
     }
 

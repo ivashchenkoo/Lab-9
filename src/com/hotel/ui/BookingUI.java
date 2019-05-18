@@ -1,8 +1,6 @@
 package com.hotel.ui;
 
-import com.hotel.ConnectionFactory;
 import com.hotel.DateUtil;
-import com.hotel.Main;
 import com.hotel.dao.*;
 import com.hotel.domain.Booking;
 import com.hotel.domain.Clients;
@@ -12,38 +10,34 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
+import java.awt.*;
 import java.sql.Date;
 
-public class BookingUI extends BorderPane {
-    private MenuBar menuBar;
-    private Menu mainMenu = new Menu("_Main");
-    private Menu dataBasesMenu = new Menu("_Data Bases");
-    private Menu tableMenu = new Menu("_Table");
-    private Menu requestMenu = new Menu("_Request...");
+public class BookingUI extends AbstractMainUI {
 
-    private CustomMenuItem userCustomMenuItem;
-    private MenuItem changeUserMenuItem = new MenuItem("_Change DB User");
-    private MenuItem exitMenuItem = new MenuItem("_Exit");
-    private MenuItem roomsMenuItem = new MenuItem("_Rooms");
-    private MenuItem clientsMenuItem = new MenuItem("_Clients");
-    private MenuItem createMenuItem = new MenuItem("_New...");
-    private MenuItem updateMenuItem = new MenuItem("_Update...");
-    private MenuItem deleteMenuItem = new MenuItem("_Delete...");
-    private MenuItem clearMenuItem = new MenuItem("_Clear");
     private MenuItem getAllBookingsMenuItem = new MenuItem("Get all bookings");
     private MenuItem getFirstBookingMenuItem = new MenuItem("Get first booking");
     private MenuItem getBookingByIdMenuItem = new MenuItem("Get booking by ID");
     private MenuItem getBookingByAvailableMenuItem = new MenuItem("Get booking by available");
+    private MenuItem getBookingByRoomNumberMenuItem = new MenuItem("Get booking by room number");
+    private MenuItem getBookingByClientNameMenuItem = new MenuItem("Get booking by client`s name");
+
+    private Button getAllBookingsButton = new Button("Get all bookings");
+    private Button getFirstBookingButton = new Button("Get first booking");
+    private Button getBookingByIdButton = new Button("Get booking by ID");
+    private Button getBookingByAvailableButton = new Button("Get booking by available");
+    private Button getBookingByRoomNumberButton = new Button("Get booking by room number");
+    private Button getBookingByClientNameButton = new Button("Get booking by client`s name");
 
     private TextField idField = new TextField();
     private ComboBox<Room> roomComboBox = new ComboBox<Room>();
@@ -51,26 +45,12 @@ public class BookingUI extends BorderPane {
     private DatePicker checkInDateDatePicker = new DatePicker();
     private DatePicker checkOutDateDatePicker = new DatePicker();
 
-    private Button createButton = new Button("New...");
-    private Button updateButton = new Button("Update...");
-    private Button deleteButton = new Button("Delete...");
-    private Button requestButton = new Button("Request...");
-    private Button clearButton = new Button("Clear");
-
-    private Button getAllBookingsButton = new Button("Get all bookings");
-    private Button getFirstBookingButton = new Button("Get first booking");
-    private Button getBookingByIdButton = new Button("Get booking by ID");
-    private Button getBookingByAvailableButton = new Button("Get booking by available");
-
-    private Button roomButton = new Button("Rooms...");
-    private Button clientsButton = new Button("Clients...");
-
     private TableView<Booking> bookingTableView = new TableView<>();
-    private TableColumn<Booking, Long> idColumn = new TableColumn<Booking, Long>("ID");
-    private TableColumn<Booking, Room> roomColumn = new TableColumn<Booking, Room>("Номер");
-    private TableColumn<Booking, Clients> clientColumn = new TableColumn<Booking, Clients>("Клієнт");
-    private TableColumn<Booking, Date> checkInDateColumn = new TableColumn<Booking, Date>("Дата заселення");
-    private TableColumn<Booking, Date> checkOutDateColumn = new TableColumn<Booking, Date>("Дата виселення");
+    private TableColumn<Booking, Long> idColumn = new TableColumn<>("ID");
+    private TableColumn<Booking, Room> roomColumn = new TableColumn<>("Room");
+    private TableColumn<Booking, Clients> clientColumn = new TableColumn<>("Client");
+    private TableColumn<Booking, Date> checkInDateColumn = new TableColumn<>("Check-in date");
+    private TableColumn<Booking, Date> checkOutDateColumn = new TableColumn<>("Check-out date");
     private ObservableList<Booking> masterData = FXCollections.observableArrayList();
 
     BookingDAO bookingDAO = new BookingDAOImpl();
@@ -78,9 +58,9 @@ public class BookingUI extends BorderPane {
     ClientsDAO clientsDAO = new ClientsDAOImpl();
 
     public BookingUI() {
-        setTop(initMenuBar());
+        setTop(initMenuBar(getAllBookingsMenuItem, getFirstBookingMenuItem, getBookingByIdMenuItem, getBookingByAvailableMenuItem, getBookingByRoomNumberMenuItem, getBookingByClientNameMenuItem));
         setCenter(initFields());
-        setRight(initButtons());
+        setRight(initButtons(getAllBookingsButton, getFirstBookingButton, getBookingByIdButton, getBookingByAvailableButton, getBookingByRoomNumberButton, getBookingByClientNameButton));
         setBottom(initTable());
         loadData();
         setTableData();
@@ -88,94 +68,7 @@ public class BookingUI extends BorderPane {
         getStylesheets().add("com/hotel/resources/Simple.css");
     }
 
-    private MenuBar initMenuBar() {
-        menuBar = new MenuBar(mainMenu, dataBasesMenu, tableMenu);
-        dataBasesMenu.getItems().addAll(roomsMenuItem, clientsMenuItem);
-        tableMenu.getItems().addAll(createMenuItem, updateMenuItem, deleteMenuItem, new SeparatorMenuItem(), clearMenuItem, requestMenu);
-        requestMenu.getItems().addAll(getAllBookingsMenuItem, getFirstBookingMenuItem, getBookingByIdMenuItem, getBookingByAvailableMenuItem);
-
-        Label userLabel = new Label("User: " + ConnectionFactory.DB_USER);
-        userLabel.setId("userLb");
-        userCustomMenuItem = new CustomMenuItem(userLabel);
-        mainMenu.getItems().addAll(userCustomMenuItem, changeUserMenuItem, new SeparatorMenuItem(), exitMenuItem);
-
-        changeUserMenuItem.setOnAction(e -> {
-            boolean confirm = ConfirmationBox.show("Are you sure you want to change user?", "Change user confirmation", "Yes", "No");
-            if (confirm) {
-                Stage stage = Main.getStage();
-                stage.close();
-                stage.setWidth(450);
-                stage.setHeight(240);
-                stage.setScene(new Scene(new SignInUI()));
-                stage.setTitle("Sign in to mySql");
-                stage.show();
-            } else return;
-        });
-        exitMenuItem.setOnAction(e -> {
-            if (ConfirmationBox.show("Are you sure you want to quit?", "Exit confirmation", "Yes", "No"))
-                Main.getStage().close();
-        });
-
-        roomsMenuItem.setOnAction(e -> roomsButton_Click());
-        clientsMenuItem.setOnAction(e -> clientsButton_Click());
-
-        createMenuItem.setOnAction(e -> createButton_Click());
-        updateMenuItem.setOnAction(e -> updateButton_Click());
-        deleteMenuItem.setOnAction(e -> deleteButton_Click());
-        clearMenuItem.setOnAction(e -> clearButton_Click());
-
-        getAllBookingsMenuItem.setOnAction(e -> requestButtons_Clicks(e));
-        getFirstBookingMenuItem.setOnAction(e -> requestButtons_Clicks(e));
-        getBookingByIdMenuItem.setOnAction(e -> requestButtons_Clicks(e));
-        getBookingByAvailableMenuItem.setOnAction(e -> requestButtons_Clicks(e));
-
-        return menuBar;
-    }
-
-    private Pane initButtons() {
-        GridPane pane = new GridPane();
-        pane.setPadding(new Insets(25, 20, 20, 20));
-        pane.setVgap(10);
-        pane.setHgap(20);
-        pane.setAlignment(Pos.TOP_CENTER);
-        pane.add(createButton, 0, 0);
-        pane.add(updateButton, 0, 1);
-        pane.add(deleteButton, 0, 2);
-        pane.add(requestButton, 0, 3);
-        pane.add(roomButton, 3, 0);
-        pane.add(clientsButton, 3, 1);
-        pane.add(clearButton, 3, 3);
-
-        createButton.setOnAction(e -> createButton_Click());
-        updateButton.setOnAction(e -> updateButton_Click());
-        deleteButton.setOnAction(e -> deleteButton_Click());
-        requestButton.setOnAction(e -> requestButton_Click());
-        clearButton.setOnAction(e -> clearButton_Click());
-
-        roomButton.setOnAction(e -> roomsButton_Click());
-        clientsButton.setOnAction(e -> clientsButton_Click());
-
-        return pane;
-    }
-
-    private void clearButton_Click() {
-        loadData();
-        setTableData();
-    }
-
-    private void clientsButton_Click() {
-        Stage stage = Main.getStage();
-        stage.setScene(new Scene(new ClientsUI()));
-        stage.setTitle("Hotel DataBase --- Clients");
-    }
-
-    private void roomsButton_Click() {
-        Stage stage = Main.getStage();
-        stage.setScene(new Scene(new RoomUI()));
-        stage.setTitle("Hotel DataBase --- Rooms");
-    }
-
-    private void deleteButton_Click() {
+    protected void deleteButton_Click() {
         if (isEmptyFieldData()) {
             MessageBox.show("Choose a row to delete!", "Delete info");
             return;
@@ -191,7 +84,7 @@ public class BookingUI extends BorderPane {
         }
     }
 
-    private void updateButton_Click() {
+    protected void updateButton_Click() {
         if (isEmptyFieldData()) {
             MessageBox.show("Choose a row to update!", "Update info");
             return;
@@ -206,7 +99,7 @@ public class BookingUI extends BorderPane {
         }
     }
 
-    private void createButton_Click() {
+    protected void createButton_Click() {
         if (createButton.getText().equals("Save")) {
             if (isEmptyFieldData()) {
                 MessageBox.show("Cannot create an empty record!", "Create info");
@@ -234,31 +127,7 @@ public class BookingUI extends BorderPane {
         }
     }
 
-    private void requestButton_Click() {
-        Stage stage = new Stage();
-        VBox pane = new VBox();
-        pane.setPadding(new Insets(20, 20, 20, 20));
-        pane.setSpacing(20);
-        pane.setAlignment(Pos.CENTER);
-        pane.getChildren().addAll(getAllBookingsButton, getFirstBookingButton, getBookingByIdButton, getBookingByAvailableButton);
-
-        getAllBookingsButton.setOnAction(e -> requestButtons_Clicks(e));
-        getFirstBookingButton.setOnAction(e -> requestButtons_Clicks(e));
-        getBookingByIdButton.setOnAction(e -> requestButtons_Clicks(e));
-        getBookingByAvailableButton.setOnAction(e -> requestButtons_Clicks(e));
-
-        Scene scene = new Scene(pane);
-        scene.getStylesheets().add("com/hotel/resources/Boxes.css");
-
-        stage.setScene(scene);
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle("Requests");
-        stage.getIcons().add(Main.getIcon());
-        stage.setWidth(300);
-        stage.show();
-    }
-
-    private void requestButtons_Clicks(ActionEvent e) {
+    protected void requestButtons_Clicks(ActionEvent e) {
         if (e.getSource().equals(getAllBookingsButton) || e.getSource().equals(getAllBookingsMenuItem)) {
             loadData();
             setTableData();
@@ -285,10 +154,31 @@ public class BookingUI extends BorderPane {
             masterData.clear();
             masterData.addAll(bookingDAO.getBookingByAvailable(isAvailable));
             setTableData();
+        } else if (e.getSource().equals(getBookingByRoomNumberButton) || e.getSource().equals(getBookingByRoomNumberMenuItem)) {
+            int roomNumber;
+            try {
+                String idStr = InputBox.show("Enter room number:", "Input data");
+                if (idStr.equals("")) return;
+                roomNumber = Integer.parseInt(idStr);
+                masterData.clear();
+                masterData.addAll(bookingDAO.getBookingByRoomNumber(roomNumber));
+                setTableData();
+            } catch (NumberFormatException ex) {
+                MessageBox.show("Room number must be an Integer value", "NumberFormatException");
+                requestButtons_Clicks(e);
+            }
+        } else if (e.getSource().equals(getBookingByClientNameButton) || e.getSource().equals(getBookingByClientNameMenuItem)) {
+            String firstName = InputBox.show("Enter client`s first name:", "Input data");
+            if (firstName.equals("")) return;
+            String lastName = InputBox.show("Enter client`s last name:", "Input data");
+            if (lastName.equals("")) return;
+            masterData.clear();
+            masterData.addAll(bookingDAO.getBookingByClientName(firstName, lastName));
+            setTableData();
         }
     }
 
-    private Pane initFields() {
+    protected Pane initFields() {
         GridPane pane = new GridPane();
         pane.setAlignment(Pos.TOP_CENTER);
         pane.setPadding(new Insets(25, 10, 10, 10));
@@ -317,7 +207,7 @@ public class BookingUI extends BorderPane {
         return pane;
     }
 
-    private Pane initTable() {
+    protected Pane initTable() {
         VBox pane = new VBox();
         pane.setPadding(new Insets(10, 10, 10, 10));
 
@@ -327,6 +217,9 @@ public class BookingUI extends BorderPane {
         checkInDateColumn.setCellValueFactory(new PropertyValueFactory<>("checkInDate"));
         checkOutDateColumn.setCellValueFactory(new PropertyValueFactory<>("checkOutDate"));
 
+        roomColumn.setPrefWidth(350);
+        clientColumn.setPrefWidth(350);
+
         bookingTableView.setEditable(true);
         bookingTableView.getColumns().addAll(idColumn, roomColumn, clientColumn, checkInDateColumn, checkOutDateColumn);
         pane.getChildren().add(bookingTableView);
@@ -334,14 +227,12 @@ public class BookingUI extends BorderPane {
         return pane;
     }
 
-    private ObservableList<Booking> loadData() {
+    protected void loadData() {
         masterData.clear();
         masterData.addAll(bookingDAO.getAllBookings());
-
-        return masterData;
     }
 
-    private void setTableData() {
+    protected void setTableData() {
         bookingTableView.setItems(masterData);
     }
 

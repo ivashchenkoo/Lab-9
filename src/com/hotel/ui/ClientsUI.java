@@ -1,8 +1,6 @@
 package com.hotel.ui;
 
-import com.hotel.ConnectionFactory;
 import com.hotel.DateUtil;
-import com.hotel.Main;
 import com.hotel.dao.ClientsDAO;
 import com.hotel.dao.ClientsDAOImpl;
 import com.hotel.domain.Clients;
@@ -11,69 +9,40 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 
 import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
 
-public class ClientsUI extends BorderPane {
-    private MenuBar menuBar;
-    private Menu mainMenu = new Menu("_Main");
-    private Menu dataBasesMenu = new Menu("_Data Bases");
-    private Menu tableMenu = new Menu("_Table");
-    private Menu requestMenu = new Menu("_Request...");
+public class ClientsUI extends AbstractMainUI {
 
-    private CustomMenuItem userCustomMenuItem;
-    private MenuItem changeUserMenuItem = new MenuItem("_Change DB User");
-    private MenuItem exitMenuItem = new MenuItem("_Exit");
-    private MenuItem bookingMenuItem = new MenuItem("_Booking");
-    private MenuItem roomsMenuItem = new MenuItem("_Rooms");
-    private MenuItem createMenuItem = new MenuItem("_New...");
-    private MenuItem updateMenuItem = new MenuItem("_Update...");
-    private MenuItem deleteMenuItem = new MenuItem("_Delete...");
-    private MenuItem clearMenuItem = new MenuItem("_Clear");
     private MenuItem getAllClientsMenuItem = new MenuItem("Get all clients");
     private MenuItem getFirstClientMenuItem = new MenuItem("Get first client");
     private MenuItem getClientByIdMenuItem = new MenuItem("Get client by ID");
     private MenuItem getClientByNameMenuItem = new MenuItem("Get client by name");
-
-    private TextField idField = new TextField();
-    private TextField firstNameField = new TextField();
-    private TextField middleNameField = new TextField();
-    private TextField lastNameField = new TextField();
-
-    private TextField birthDtField = new TextField();
-    private DatePicker birthDatePicker = new DatePicker();
-
-    private TextField serialOfPassportField = new TextField();
-    private TextField numOfPassportField = new TextField();
-    private TextField phoneField = new TextField();
-
-    private Button createButton = new Button("New...");
-    private Button updateButton = new Button("Update...");
-    private Button deleteButton = new Button("Delete...");
-    private Button requestButton = new Button("Request...");
-    private Button clearButton = new Button("Clear");
 
     private Button getAllClientsButton = new Button("Get all clients");
     private Button getFirstClientButton = new Button("Get first client");
     private Button getClientByIdButton = new Button("Get client by ID");
     private Button getClientByNameButton = new Button("Get client by name");
 
-    private Button roomButton = new Button("Rooms...");
-    private Button bookingButton = new Button("Booking...");
+    private TextField idField = new TextField();
+    private TextField firstNameField = new TextField();
+    private TextField middleNameField = new TextField();
+    private TextField lastNameField = new TextField();
+    private TextField birthDtField = new TextField();
+    private DatePicker birthDatePicker = new DatePicker();
+    private TextField serialOfPassportField = new TextField();
+    private TextField numOfPassportField = new TextField();
+    private TextField phoneField = new TextField();
 
     private TableView<Clients> clientsTableView = new TableView<>();
     private TableColumn<Clients, Long> idColumn = new TableColumn<>("ID");
@@ -89,9 +58,9 @@ public class ClientsUI extends BorderPane {
     private ClientsDAO clientsDAO = new ClientsDAOImpl();
 
     public ClientsUI() {
-        setTop(initMenuBar());
+        setTop(initMenuBar(getAllClientsMenuItem, getFirstClientMenuItem, getClientByIdMenuItem, getClientByNameMenuItem));
         setCenter(initFields());
-        setRight(initButtons());
+        setRight(initButtons(getAllClientsButton, getFirstClientButton, getClientByIdButton, getClientByNameButton));
         setBottom(initTable());
         loadData();
         setTableData();
@@ -112,106 +81,7 @@ public class ClientsUI extends BorderPane {
         });
     }
 
-    private MenuBar initMenuBar() {
-        menuBar = new MenuBar(mainMenu, dataBasesMenu, tableMenu);
-        dataBasesMenu.getItems().addAll(bookingMenuItem, roomsMenuItem);
-        tableMenu.getItems().addAll(createMenuItem, updateMenuItem, deleteMenuItem, new SeparatorMenuItem(), clearMenuItem, requestMenu);
-        requestMenu.getItems().addAll(getAllClientsMenuItem, getFirstClientMenuItem, getClientByIdMenuItem, getClientByNameMenuItem);
-
-        Label userLabel = new Label("User: " + ConnectionFactory.DB_USER);
-        userLabel.setId("userLb");
-        userCustomMenuItem = new CustomMenuItem(userLabel);
-        mainMenu.getItems().addAll(userCustomMenuItem, changeUserMenuItem, new SeparatorMenuItem(), exitMenuItem);
-
-        changeUserMenuItem.setOnAction(e -> {
-            boolean confirm = ConfirmationBox.show("Are you sure you want to change user?", "Change user confirmation", "Yes", "No");
-            if (confirm) {
-                Stage stage = Main.getStage();
-                stage.close();
-                stage.setWidth(450);
-                stage.setHeight(240);
-                stage.setScene(new Scene(new SignInUI()));
-                stage.setTitle("Sign in to mySql");
-                stage.show();
-            } else return;
-        });
-        exitMenuItem.setOnAction(e -> {
-            if (ConfirmationBox.show("Are you sure you want to quit?", "Exit confirmation", "Yes", "No"))
-                Main.getStage().close();
-        });
-
-        bookingMenuItem.setOnAction(e -> bookingButton_Click());
-        roomsMenuItem.setOnAction(e -> roomsButton_Click());
-
-        createMenuItem.setOnAction(e -> createButton_Click());
-        updateMenuItem.setOnAction(e -> updateButton_Click());
-        deleteMenuItem.setOnAction(e -> deleteButton_Click());
-        clearMenuItem.setOnAction(e -> clearButton_Click());
-
-        getAllClientsMenuItem.setOnAction(e -> requestButtons_Clicks(e));
-        getFirstClientMenuItem.setOnAction(e -> requestButtons_Clicks(e));
-        getClientByIdMenuItem.setOnAction(e -> requestButtons_Clicks(e));
-        getClientByNameMenuItem.setOnAction(e -> requestButtons_Clicks(e));
-
-        return menuBar;
-    }
-
-    private Pane initButtons() {
-        GridPane pane = new GridPane();
-        pane.setPadding(new Insets(25, 20, 20, 20));
-        pane.setVgap(10);
-        pane.setHgap(20);
-        pane.setAlignment(Pos.TOP_CENTER);
-        pane.add(createButton, 0, 0);
-        pane.add(updateButton, 0, 1);
-        pane.add(deleteButton, 0, 2);
-        pane.add(requestButton, 0, 3);
-        pane.add(bookingButton, 3, 0);
-        pane.add(roomButton, 3, 1);
-        pane.add(clearButton, 3, 3);
-
-        createButton.setOnAction(e -> createButton_Click());
-        updateButton.setOnAction(e -> updateButton_Click());
-        deleteButton.setOnAction(e -> deleteButton_Click());
-        requestButton.setOnAction(e -> requestButton_Click());
-        clearButton.setOnAction(e -> clearButton_Click());
-
-        bookingButton.setOnAction(e -> bookingButton_Click());
-        roomButton.setOnAction(e -> roomsButton_Click());
-
-        return pane;
-    }
-
-    private void clearButton_Click() {
-        loadData();
-        setTableData();
-    }
-
-    private void requestButton_Click() {
-        Stage stage = new Stage();
-        VBox pane = new VBox();
-        pane.setPadding(new Insets(20, 20, 20, 20));
-        pane.setSpacing(20);
-        pane.setAlignment(Pos.CENTER);
-        pane.getChildren().addAll(getAllClientsButton, getFirstClientButton, getClientByIdButton, getClientByNameButton);
-
-        getAllClientsButton.setOnAction(e -> requestButtons_Clicks(e));
-        getFirstClientButton.setOnAction(e -> requestButtons_Clicks(e));
-        getClientByIdButton.setOnAction(e -> requestButtons_Clicks(e));
-        getClientByNameButton.setOnAction(e -> requestButtons_Clicks(e));
-
-        Scene scene = new Scene(pane);
-        scene.getStylesheets().add("com/hotel/resources/Boxes.css");
-
-        stage.setScene(scene);
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle("Requests");
-        stage.getIcons().add(Main.getIcon());
-        stage.setWidth(300);
-        stage.show();
-    }
-
-    private void requestButtons_Clicks(ActionEvent e) {
+    protected void requestButtons_Clicks(ActionEvent e) {
         if (e.getSource().equals(getAllClientsButton) || e.getSource().equals(getAllClientsMenuItem)) {
             loadData();
             setTableData();
@@ -234,26 +104,16 @@ public class ClientsUI extends BorderPane {
             }
         } else if (e.getSource().equals(getClientByNameButton) || e.getSource().equals(getClientByNameMenuItem)) {
             String firstName = InputBox.show("Enter client`s first name:", "Input data");
+            if (firstName.equals("")) return;
             String lastName = InputBox.show("Enter client`s last name:", "Input data");
+            if (lastName.equals("")) return;
             masterData.clear();
             masterData.addAll(clientsDAO.getClientByName(firstName, lastName));
             setTableData();
         }
     }
 
-    private void roomsButton_Click() {
-        Stage stage = Main.getStage();
-        stage.setScene(new Scene(new RoomUI()));
-        stage.setTitle("Hotel DataBase --- Rooms");
-    }
-
-    private void bookingButton_Click() {
-        Stage stage = Main.getStage();
-        stage.setScene(new Scene(new BookingUI()));
-        stage.setTitle("Hotel DataBase --- Booking");
-    }
-
-    private void deleteButton_Click() {
+    protected void deleteButton_Click() {
         if (firstNameField.getText().equals("") || lastNameField.getText().equals("") || numOfPassportField.getText().equals("") || birthDtField.getText().isEmpty()) {
             MessageBox.show("Choose a row to delete!", "Delete info");
             return;
@@ -274,7 +134,7 @@ public class ClientsUI extends BorderPane {
         }
     }
 
-    private void updateButton_Click() {
+    protected void updateButton_Click() {
         if (isEmptyFieldData()) {
             MessageBox.show("Choose a row to update!", "Update info");
             return;
@@ -294,7 +154,7 @@ public class ClientsUI extends BorderPane {
         }
     }
 
-    private void createButton_Click() {
+    protected void createButton_Click() {
         if (createButton.getText().equals("Save")) {
             if (isEmptyFieldData()) {
                 MessageBox.show("Cannot create an empty record!", "Create info");
@@ -330,7 +190,7 @@ public class ClientsUI extends BorderPane {
         }
     }
 
-    private Pane initFields() {
+    protected Pane initFields() {
         GridPane pane = new GridPane();
         pane.setAlignment(Pos.TOP_CENTER);
         pane.setPadding(new Insets(25, 10, 10, 10));
@@ -370,7 +230,7 @@ public class ClientsUI extends BorderPane {
         return pane;
     }
 
-    private Pane initTable() {
+    protected Pane initTable() {
         VBox pane = new VBox();
         pane.setPadding(new Insets(10, 10, 10, 10));
 
@@ -445,14 +305,12 @@ public class ClientsUI extends BorderPane {
         clientsDAO.updateClient(client);
     }
 
-    private ObservableList<Clients> loadData() {
+    protected void loadData() {
         masterData.clear();
         masterData.addAll(clientsDAO.getAllClients());
-
-        return masterData;
     }
 
-    private void setTableData() {
+    protected void setTableData() {
         clientsTableView.setItems(masterData);
     }
 

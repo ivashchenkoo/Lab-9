@@ -32,7 +32,7 @@
 
 .button {
     -fx-background-color: linear-gradient(#7fff00, #006400);
-    -fx-text-fill: linear-gradient(#ff69b4, #ffb6c1);
+    -fx-text-fill: linear-gradient(#4b0082, #0000cd);
     -fx-font-family: "Arial Narrow";
     -fx-font-size: 16pt;
     -fx-font-weight: bold;

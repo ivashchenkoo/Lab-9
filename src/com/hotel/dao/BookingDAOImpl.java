@@ -161,4 +161,38 @@ public class BookingDAOImpl implements BookingDAO {
         }
         return null;
     }
+    ;
+    @Override
+    public List<Booking> getBookingByRoomNumber(int number){
+        try (Connection connection = ConnectionFactory.getConnection();
+             Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM booking INNER JOIN room ON booking.roomID = room.ID where number=" + number)) {
+            List<Booking> booking = new ArrayList<>();
+            while (rs.next()) {
+                booking.add(getBookingFromRS(rs));
+            }
+            return booking;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public List<Booking> getBookingByClientName(String firstName, String lastName) {
+        try (Connection connection = ConnectionFactory.getConnection();
+             PreparedStatement ps = connection.prepareStatement("SELECT * FROM booking INNER JOIN clients ON booking.clientID = clients.ID WHERE firstName=? and lastName=?");) {
+            ps.setString(1, firstName);
+            ps.setString(2, lastName);
+            ResultSet rs = ps.executeQuery();
+            List<Booking> booking = new ArrayList<>();
+            while (rs.next()) {
+                booking.add(getBookingFromRS(rs));
+            }
+            return booking;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 }
